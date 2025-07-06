@@ -10,6 +10,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/CascadeStyleSheet.css to ed
     -fx-background-color: lightpink;
     -fx-padding: 10;
     -fx-alignment: center;
+    -fx-spacing: 8;
 }
 
 .TextTitle{
@@ -18,6 +19,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/CascadeStyleSheet.css to ed
     -fx-font-weight: bold;
 }
 
-.Button{
-    
+.btn{
+    -fx-pref-width: 200;
+    -fx-padding: 5
 }
