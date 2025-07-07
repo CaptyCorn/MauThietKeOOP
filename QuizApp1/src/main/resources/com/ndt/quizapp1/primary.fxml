@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox prefHeight="312.0" prefWidth="247.0" styleClass="Main" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ndt.quizapp1.PrimaryController">
+<VBox prefHeight="322.0" prefWidth="247.0" styleClass="Main" stylesheets="@style.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ndt.quizapp1.PrimaryController">
    <children>
       <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="TextTitle" text="Quizz App" />
       <Button mnemonicParsing="false" onAction="#handleQuestionManager" styleClass="btn" text="Quản lý câu hỏi" />
@@ -12,5 +13,6 @@
       <Button layoutX="278.0" layoutY="239.0" mnemonicParsing="false" styleClass="btn" text="Thi" />
       <Button layoutX="278.0" layoutY="255.0" mnemonicParsing="false" styleClass="btn" text="Đăng ký" />
       <Button layoutX="278.0" layoutY="270.0" mnemonicParsing="false" styleClass="btn" text="Đăng nhập" />
+      <ComboBox fx:id="cbTheme" onAction="#changeTheme" prefWidth="150.0" styleClass="btn" />
    </children>
 </VBox>
