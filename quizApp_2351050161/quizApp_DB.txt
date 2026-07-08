@@ -1,0 +1,183 @@
+DROP TABLE IF EXISTS exam_question;
+DROP TABLE IF EXISTS choice;
+DROP TABLE IF EXISTS question;
+DROP TABLE IF EXISTS exam;
+DROP TABLE IF EXISTS category;
+DROP TABLE IF EXISTS level;
+
+-- ==========================
+-- TABLE: LEVEL
+-- ==========================
+CREATE TABLE level(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(45) NOT NULL,
+    note VARCHAR(255)
+);
+
+-- ==========================
+-- TABLE: CATEGORY
+-- ==========================
+CREATE TABLE category(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(50) NOT NULL
+);
+
+-- ==========================
+-- TABLE: QUESTION
+-- ==========================
+CREATE TABLE question(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    content VARCHAR(255) NOT NULL,
+    hint VARCHAR(255),
+    image VARCHAR(100),
+    category_id INTEGER NOT NULL,
+    level_id INTEGER NOT NULL,
+    FOREIGN KEY(category_id) REFERENCES category(id),
+    FOREIGN KEY(level_id) REFERENCES level(id)
+);
+
+-- ==========================
+-- TABLE: CHOICE
+-- ==========================
+CREATE TABLE choice(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    content VARCHAR(255) NOT NULL,
+    is_correct INTEGER NOT NULL,
+    question_id INTEGER NOT NULL,
+    FOREIGN KEY(question_id) REFERENCES question(id)
+);
+
+-- ==========================
+-- TABLE: EXAM
+-- ==========================
+CREATE TABLE exam(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title VARCHAR(100) NOT NULL,
+    created_date DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ==========================
+-- TABLE: EXAM_QUESTION
+-- ==========================
+CREATE TABLE exam_question(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    exam_id INTEGER NOT NULL,
+    question_id INTEGER NOT NULL,
+    FOREIGN KEY(exam_id) REFERENCES exam(id),
+    FOREIGN KEY(question_id) REFERENCES question(id)
+);
+
+-- ==========================
+-- LEVEL
+-- ==========================
+INSERT INTO level(id,name,note) VALUES
+(1,'Easy','Easy Level'),
+(2,'Medium','Medium Level'),
+(3,'Hard','Hard Level');
+
+-- ==========================
+-- CATEGORY
+-- ==========================
+INSERT INTO category(id,name) VALUES
+(1,'Grammar'),
+(2,'Vocabulary'),
+(3,'Reading');
+
+-- ==========================
+-- QUESTION
+-- ==========================
+INSERT INTO question(id,content,hint,image,category_id,level_id) VALUES
+(1,'She ____ a student.','Use verb TO BE','',1,1),
+(2,'I ____ English every day.','Simple Present','',1,1),
+(3,'They ____ football yesterday.','Simple Past','',1,2),
+(4,'Choose the synonym of happy.','Vocabulary','',2,1),
+(5,'The opposite of strong is ____.','Vocabulary','',2,2),
+(6,'He has lived here ____ 2020.','Since or For','',1,3),
+(7,'Choose the correct meaning of quickly.','Vocabulary','',2,1),
+(8,'Tom is reading a book. What is Tom doing?','Reading','',3,1),
+(9,'Mary ____ TV now.','Present Continuous','',1,2),
+(10,'Choose the synonym of beautiful.','Vocabulary','',2,2);
+
+-- ==========================
+-- CHOICE
+-- ==========================
+INSERT INTO choice(id,content,is_correct,question_id) VALUES
+
+(1,'am',0,1),
+(2,'is',1,1),
+(3,'are',0,1),
+(4,'be',0,1),
+
+(5,'learn',1,2),
+(6,'learns',0,2),
+(7,'learning',0,2),
+(8,'to learn',0,2),
+
+(9,'play',0,3),
+(10,'played',1,3),
+(11,'plays',0,3),
+(12,'playing',0,3),
+
+(13,'sad',0,4),
+(14,'glad',1,4),
+(15,'angry',0,4),
+(16,'tired',0,4),
+
+(17,'powerful',0,5),
+(18,'weak',1,5),
+(19,'large',0,5),
+(20,'fast',0,5),
+
+(21,'for',0,6),
+(22,'since',1,6),
+(23,'during',0,6),
+(24,'at',0,6),
+
+(25,'slowly',0,7),
+(26,'fast',1,7),
+(27,'sadly',0,7),
+(28,'badly',0,7),
+
+(29,'He is sleeping.',0,8),
+(30,'He is reading a book.',1,8),
+(31,'He is playing football.',0,8),
+(32,'He is cooking.',0,8),
+
+(33,'watch',0,9),
+(34,'is watching',1,9),
+(35,'watched',0,9),
+(36,'watches',0,9),
+
+(37,'pretty',1,10),
+(38,'ugly',0,10),
+(39,'dirty',0,10),
+(40,'small',0,10);
+
+-- ==========================
+-- EXAM
+-- ==========================
+INSERT INTO exam(id,title,created_date) VALUES
+(1,'Grammar Practice',datetime('now')),
+(2,'Vocabulary Practice',datetime('now')),
+(3,'Mixed English Test',datetime('now'));
+
+-- ==========================
+-- EXAM QUESTION
+-- ==========================
+INSERT INTO exam_question(id,exam_id,question_id) VALUES
+(1,1,1),
+(2,1,2),
+(3,1,3),
+(4,1,6),
+(5,1,9),
+
+(6,2,4),
+(7,2,5),
+(8,2,7),
+(9,2,10),
+
+(10,3,1),
+(11,3,4),
+(12,3,6),
+(13,3,8),
+(14,3,10);
