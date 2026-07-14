@@ -4,7 +4,11 @@
 
 package com.ndt.quizapp;
 
+import com.ndt.pojo.Choice;
 import com.ndt.pojo.Question;
+import com.ndt.repositories.QuestionRepository;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -150,8 +154,59 @@ public class QuizApp_2351050161 extends Application{
                 return;
             }
             
+            if (cbCategory.getValue() == null || cbLevel.getValue() == null) {
+                MyAlert.getInstance().showError("Bạn chưa chọn danh mục hoặc cấp độ!");
+                return;
+            }
             
-            MyAlert.getInstance().showAlert("Chức năng lưu câu hỏi", Alert.AlertType.INFORMATION);
+            if (txtAnswerA.getText().trim().isEmpty() || 
+                    txtAnswerB.getText().trim().isEmpty() || 
+                    txtAnswerC.getText().trim().isEmpty() || 
+                    txtAnswerD.getText().trim().isEmpty()) {
+                MyAlert.getInstance().showError("Bạn chưa nhập câu trả lời1");
+                return;
+            }
+            
+            if (rbGroup.getSelectedToggle() == null) {
+                MyAlert.getInstance().showError("Bạn chưa chọn đáp án đúng!");
+                return;
+            }
+            
+            String correctAnswer = rbGroup.getSelectedToggle().getUserData().toString();
+            ArrayList<Choice> choices = new ArrayList<>();
+            choices.add(new Choice(txtAnswerA.getText().trim(), correctAnswer.equals("A")));
+            choices.add(new Choice(txtAnswerB.getText().trim(), correctAnswer.equals("B")));
+            choices.add(new Choice(txtAnswerC.getText().trim(), correctAnswer.equals("C")));
+            choices.add(new Choice(txtAnswerD.getText().trim(), correctAnswer.equals("D")));
+            
+            Question.Builder builder = new Question.Builder()
+                    .category(cbCategory.getValue().toString())
+                    .content(txtContent.getText().trim())
+                    .hint(txtHint.getText().trim())
+                    .choices(choices)
+                    .level(cbLevel.getValue().toString());
+            
+            Question question = new Question(builder);
+            
+            try {
+                QuestionRepository questionRepo = new QuestionRepository();
+                Boolean result = questionRepo.addQuestion(question);
+                if (result) {
+                    MyAlert.getInstance().showAlert("Thêm câu hỏi thành công.", Alert.AlertType.INFORMATION);
+                    txtContent.clear();
+                    txtHint.clear();
+                    txtAnswerA.clear();
+                    txtAnswerB.clear();
+                    txtAnswerC.clear();
+                    txtAnswerD.clear();
+                    cbCategory.setValue("Danh mục");
+                    cbLevel.setValue("Cấp độ");
+                    rbGroup.getToggles().clear();
+                }
+                else MyAlert.getInstance().showAlert("Thêm câu hỏi không thành công!", Alert.AlertType.ERROR);
+            } catch (SQLException ex) {
+                System.getLogger(QuizApp_2351050161.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
         });
         
         Button returnHomeForm = new Button("Quay về trang chủ");

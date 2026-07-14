@@ -33,7 +33,7 @@ public class QuestionRepository {
         stm.setInt(4, categoryId);
         stm.setInt(5, levelId);
         
-        stm.executeQuery();
+        stm.executeUpdate();
         
         ResultSet rs = stm.getGeneratedKeys();
         

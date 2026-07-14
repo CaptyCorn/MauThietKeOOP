@@ -9,6 +9,9 @@ com\ndt\quizapp\ThemeType.class
 com\ndt\pojo\Choice.class
 com\ndt\quizapp\DefaultThemeFactory.class
 com\ndt\quizapp\ThemeFactoryProducer$1.class
+com\ndt\pojo\Level.class
 com\ndt\quizapp\ThemeFactory.class
+com\ndt\repositories\QuestionRepository.class
 com\ndt\pojo\Question$Builder.class
 com\ndt\quizapp\DatabaseInitializer.class
+com\ndt\repositories\LevelRepository.class

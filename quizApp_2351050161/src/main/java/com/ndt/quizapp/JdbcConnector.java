@@ -18,11 +18,20 @@ public class JdbcConnector {
     private static JdbcConnector instance;
     private Connection connection;
     
+//    private JdbcConnector() throws SQLException {
+//        try {
+//            connection = DriverManager.getConnection("jdbc:sqlite:quiz_app.db");
+//            System.out.println("Kết nối thành công");
+//        } catch (SQLException e) {
+//            System.out.println("that ba");
+//        }
+//    }
+    
     private JdbcConnector() {
         
     }
     
-    public static JdbcConnector getInstance() {
+    public static JdbcConnector getInstance() throws SQLException {
         if (instance == null)
             instance = new JdbcConnector();
         return instance;

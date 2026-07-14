@@ -13,8 +13,7 @@ public class Choice {
     private String content;
     private Boolean is_correct;
 
-    public Choice(int id, String content, Boolean is_corect) {
-        this.id = id;
+    public Choice(String content, Boolean is_corect) {
         this.content = content;
         this.is_correct = is_corect;
     }

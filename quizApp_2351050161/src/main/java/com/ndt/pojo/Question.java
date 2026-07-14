@@ -40,7 +40,7 @@ public class Question implements Cloneable{
 
     
     
-    private Question(Builder builder) {
+    public Question(Builder builder) {
         this.id = builder.id;
         this.content = builder.content;
         this.level = builder.level;
