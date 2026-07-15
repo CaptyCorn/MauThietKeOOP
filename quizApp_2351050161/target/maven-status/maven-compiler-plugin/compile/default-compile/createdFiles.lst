@@ -4,6 +4,7 @@ com\ndt\quizapp\JdbcConnector.class
 com\ndt\quizapp\QuizApp_2351050161.class
 com\ndt\quizapp\DarkThemeFactory.class
 com\ndt\quizapp\MyAlert.class
+com\ndt\quizapp\QuestionQueryBuilder.class
 com\ndt\pojo\Question.class
 com\ndt\quizapp\ThemeType.class
 com\ndt\pojo\Choice.class

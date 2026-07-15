@@ -7,17 +7,61 @@ package com.ndt.repositories;
 import com.ndt.pojo.Choice;
 import com.ndt.pojo.Question;
 import com.ndt.quizapp.JdbcConnector;
+import com.ndt.quizapp.QuestionQueryBuilder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author admin
  */
 public class QuestionRepository {
+    public List<Question> getListQuestion(String kw, Integer categoryId, Integer levelId, int limit) {
+        QuestionQueryBuilder query = new QuestionQueryBuilder()
+                    .categoryId(categoryId)
+                    .levelId(levelId)
+                    .limit(limit);
+            
+        List<Question> questions = new ArrayList<>();
+        System.out.println(query.builder());
+        System.out.println("size: " + query.getParams().size());
+        try {
+            Connection conn = JdbcConnector.getInstance().connect();
+            PreparedStatement stm = conn.prepareStatement(query.builder());
+            int idx = 1;
+            for (Object param: query.getParams()) {
+                stm.setObject(idx, param);
+                idx++;
+            }
+            
+            ResultSet rs = stm.executeQuery();
+            
+            while(rs.next()) {
+                int questionId = rs.getInt("id");
+                Question question = new Question(
+                        questionId, 
+                        rs.getString("content"), 
+                        rs.getString("level"), 
+                        rs.getString("category"), 
+                        rs.getString("hint"), 
+                        rs.getString("image"), 
+                        new ArrayList<>());
+                questions.add(question);
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(QuestionRepository.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return questions;
+    }
+    
     public boolean addQuestion(Question question) throws SQLException {
         Connection conn = JdbcConnector.getInstance().connect();
         

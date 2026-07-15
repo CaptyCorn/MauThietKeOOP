@@ -9,6 +9,7 @@ import com.ndt.pojo.Question;
 import com.ndt.repositories.QuestionRepository;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -32,6 +33,9 @@ public class QuizApp_2351050161 extends Application{
     private Stage mainStage;
     private ThemeFactory currThemeFactory = new DefaultThemeFactory();
     private ThemeType currThemeType = ThemeType.DEFAULT_THEME;
+    
+    private int currQuestion = 0;
+    private List<Question> lstQuestion = new ArrayList<>();
 
     public static void main(String[] args) {
         launch(args);
@@ -39,7 +43,7 @@ public class QuizApp_2351050161 extends Application{
 
     @Override
     public void start(Stage stage) throws Exception {
-        DatabaseInitializer.initDB();
+//        DatabaseInitializer.initDB();
         
         mainStage = stage;
         currThemeFactory = ThemeFactoryProducer.getTheme(currThemeType);
@@ -64,8 +68,7 @@ public class QuizApp_2351050161 extends Application{
         
         btnQuestion.setOnAction(e -> showQuestionForm());
         
-        btnPractice.setOnAction(e -> MyAlert.getInstance().showAlert("Chào mứng đến luyện tập bài thi.", 
-                Alert.AlertType.INFORMATION));
+        btnPractice.setOnAction(e -> showPracticeForm());
         
         btnExam.setOnAction(e -> MyAlert.getInstance().showAlert("Chào mứng đến kiểm tra bài thi.", 
                 Alert.AlertType.INFORMATION));
@@ -220,6 +223,53 @@ public class QuizApp_2351050161 extends Application{
         Scene scene = new Scene(root, 640, 480);
         this.mainStage.setScene(scene);
         this.mainStage.show();
+    }
+
+    private void showPracticeForm() {
+        initDB();
+        
+        Label lbl = new Label("Câu hỏi " + currQuestion + " / " + lstQuestion.size());
+        
+        Label lblContent = new Label(lstQuestion.get(currQuestion).getContent());
+        lblContent.prefWidth(500);
+        
+        VBox answerBox = new VBox();
+        answerBox.setAlignment(Pos.TOP_LEFT);
+        
+        ToggleGroup rbAnswerGroup = new ToggleGroup();
+        for (Choice choice : lstQuestion.get(currQuestion).getChoice()) {
+            RadioButton rbChoice = new RadioButton(choice.getContent());
+            rbChoice.setUserData(choice);
+            rbChoice.setToggleGroup(rbAnswerGroup);
+            answerBox.getChildren().add(rbChoice);
+        }
+        
+        Button btnAnswer = new Button("Trả lời");
+        btnAnswer.setStyle(currThemeFactory.getButtonStyle());
+        
+        Button btnNextQuestion = new Button("Câu tiếp theo");
+        btnNextQuestion.setStyle(currThemeFactory.getButtonStyle());
+        btnNextQuestion.setOnAction(e -> showHome());
+        
+        VBox root = new VBox(15);
+        root.setAlignment(Pos.CENTER);
+        root.setStyle(currThemeFactory.getBackgroudStyle());
+        root.getChildren().addAll(lbl, lblContent, answerBox, btnAnswer, btnNextQuestion);
+        
+        Scene scene = new Scene(root, 640, 480);
+        this.mainStage.setScene(scene);
+        this.mainStage.show();
+    }
+    
+    private void initDB() {
+//        List<Choice> choices = List.of(new Choice("AA", Boolean.TRUE), new Choice("BB", Boolean.FALSE), 
+//                new Choice("CC", Boolean.FALSE), new Choice("DD", Boolean.FALSE));
+//        
+//        List<Question> questions = List.of(new Question(1, "Cau 11", "level", "category", "", "", choices));
+
+        QuestionRepository repo = new QuestionRepository();
+        
+        this.lstQuestion = repo.getListQuestion(null, null, null, 1);
     }
     
 }
