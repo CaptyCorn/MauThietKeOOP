@@ -50,14 +50,23 @@ public class QuestionRepository {
                 
                 List<Choice> choices = getListChoices(questionId);
                 
-                Question question = new Question(
-                        questionId, 
-                        rs.getString("content"), 
-                        rs.getString("level_id"), 
-                        rs.getString("category_id"), 
-                        rs.getString("hint"), 
-                        rs.getString("image"), 
-                        choices);
+                Question.Builder builder = new Question.Builder()
+                        .id(questionId)
+                        .content(rs.getString("content"))
+                        .hint(rs.getString("hint"))
+                        .category( rs.getString("category"))
+                        .level(rs.getString("level"))
+                        .choices(choices);
+                Question question = new Question(builder);
+                
+//                Question question = new Question(
+//                        questionId, 
+//                        rs.getString("content"), 
+//                        rs.getString("level"), 
+//                        rs.getString("category"), 
+//                        rs.getString("hint"), 
+//                        rs.getString("image"), 
+//                        choices);
                 questions.add(question);
             }
             

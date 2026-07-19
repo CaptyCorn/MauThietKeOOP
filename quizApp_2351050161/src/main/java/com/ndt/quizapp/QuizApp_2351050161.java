@@ -7,10 +7,13 @@ package com.ndt.quizapp;
 import com.ndt.pojo.Choice;
 import com.ndt.pojo.Question;
 import com.ndt.repositories.QuestionRepository;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -18,10 +21,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /**
@@ -36,6 +43,16 @@ public class QuizApp_2351050161 extends Application{
     
     private int currQuestion = 0;
     private List<Question> lstQuestion = new ArrayList<>();
+    
+    ComboBox cbCategory = new ComboBox();
+    ComboBox cbLevel = new ComboBox();
+    
+    ComboBox cbSearchCategory = new ComboBox();
+    ComboBox cbSearchLevel = new ComboBox();
+    TextField txtSearch = new TextField();
+    
+    private TableView tbViewQuestion = new TableView();
+    private final ObservableList<Question> data = FXCollections.observableArrayList();
 
     public static void main(String[] args) {
         launch(args);
@@ -106,13 +123,11 @@ public class QuizApp_2351050161 extends Application{
         TextField txtHint =  new TextField();
         txtHint.setMaxWidth(500);
         txtHint.setPromptText("Gợi ý cho câu hỏi");
-        
-        ComboBox cbCategory = new ComboBox();
-        cbCategory.getItems().addAll("Grammar", "Vocabulary", "Reading");
+              
+        cbCategory.getItems().addAll("Danh mục", "Grammar", "Vocabulary", "Reading");
         cbCategory.setValue("Danh mục");
-        
-        ComboBox cbLevel = new ComboBox();
-        cbLevel.getItems().addAll("Easy", "Medium", "Hard");
+               
+        cbLevel.getItems().addAll("Cấp độ", "Easy", "Medium", "Hard");
         cbLevel.setValue("Cấp độ");
         
         HBox hbDanhMuc = new HBox(10);
@@ -150,8 +165,8 @@ public class QuizApp_2351050161 extends Application{
         rbC.setUserData("C");
         rbD.setUserData("D");
         
-        Button btnSave = new Button("Lưu câu hỏi");
-        btnSave.setOnAction(e -> {
+        Button btnAddQuestion = new Button("Lưu câu hỏi");
+        btnAddQuestion.setOnAction(e -> {
             if (txtContent.getText().trim().isEmpty() || txtHint.getText().trim().isEmpty()) {
                 MyAlert.getInstance().showError("Bạn chưa nhập nội dung hoặc là gợi ý!");
                 return;
@@ -212,17 +227,76 @@ public class QuizApp_2351050161 extends Application{
             }
         });
         
-        Button returnHomeForm = new Button("Quay về trang chủ");
-        returnHomeForm.setOnAction(e -> showHome());
+        Button btnBackHome = new Button("Quay về trang chủ");
+        btnBackHome.setOnAction(e -> showHome());
+        
+        Button btnAddFromFile = new Button("Thêm từ tập tin");
+        btnAddFromFile.setStyle("-fx-background-color: yellow");
+        
+        HBox hbBtnGrp = new HBox(10, btnAddQuestion, btnBackHome, btnAddFromFile);
+        
+        txtSearch.setPromptText("Nhập từ khóa...");
+        txtSearch.setOnAction(e -> showQuestion());
+        
+        cbSearchCategory.getItems().addAll("Danh mục", "Grammar", "Vocabulary", "Reading");
+        cbSearchCategory.setValue("Danh mục");
+        cbSearchCategory.setOnAction(e -> showQuestion());
+               
+        cbSearchLevel.getItems().addAll("Cấp độ", "Easy", "Medium", "Hard");
+        cbSearchLevel.setValue("Cấp độ");
+        cbSearchLevel.setOnAction(e -> showQuestion());
+        
+        HBox hbBtnSearch = new HBox(10, txtSearch, cbSearchCategory, cbSearchLevel);
+        
+        initTable();
+        showQuestion();
              
         VBox root = new VBox(15);
         root.setAlignment(Pos.CENTER);
         root.setStyle(currThemeFactory.getBackgroudStyle());
-        root.getChildren().addAll(lblTitle, txtContent, txtHint, hbDanhMuc, row1, row2, btnSave, returnHomeForm);
+        root.getChildren().addAll(lblTitle, txtContent, txtHint, hbDanhMuc, row1, row2, hbBtnGrp, hbBtnSearch, tbViewQuestion);
         
         Scene scene = new Scene(root, 640, 480);
         this.mainStage.setScene(scene);
         this.mainStage.show();
+    }
+    
+    private void initTable() {
+        TableColumn idCol = new TableColumn("Id");
+        idCol.setCellValueFactory(new PropertyValueFactory<Question, String>("id"));
+        idCol.setMinWidth(100);
+        
+        TableColumn contentCol = new TableColumn("Content");
+        contentCol.setCellValueFactory(new PropertyValueFactory<Question, String>("content"));
+        contentCol.setMinWidth(200);
+        
+        TableColumn categoryCol = new TableColumn("Category");
+        categoryCol.setCellValueFactory(new PropertyValueFactory<Question, String>("category"));
+        categoryCol.setMinWidth(100);
+        
+        TableColumn levelCol = new TableColumn("Level");
+        levelCol.setCellValueFactory(new PropertyValueFactory<Question, String>("level"));
+        levelCol.setMinWidth(100);
+        
+        tbViewQuestion.getColumns().addAll(idCol, contentCol, categoryCol, levelCol);
+        tbViewQuestion.setItems(data);
+    }
+    
+    private void showQuestion() {
+        Integer categoryId = null;
+        Integer levelId = null;
+        
+        if(cbSearchCategory.getValue() != null) {
+            categoryId = QuestionRepository.getCategoryId(cbSearchCategory.getValue().toString());
+        }
+        
+        if(cbSearchLevel.getValue() != null) {
+            levelId = QuestionRepository.getLevelId(cbSearchLevel.getValue().toString());
+        }
+        
+        QuestionRepository questionRepo = new QuestionRepository();
+        List<Question> questions = questionRepo.getListQuestion(txtSearch.getText().toString(), categoryId, levelId, 1000);
+        data.setAll(questions);
     }
     
     private void showPracticeForm() {
@@ -347,15 +421,20 @@ public class QuizApp_2351050161 extends Application{
         this.mainStage.show();
     }
     
-    private void initDB() {
-//        List<Choice> choices = List.of(new Choice("AA", Boolean.TRUE), new Choice("BB", Boolean.FALSE), 
-//                new Choice("CC", Boolean.FALSE), new Choice("DD", Boolean.FALSE));
-//        
-//        List<Question> questions = List.of(new Question(1, "Cau 11", "level", "category", "", "", choices));
-
-        QuestionRepository repo = new QuestionRepository();
+    private void addFromFileHandler() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Chọn file json");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("json file", "*.json"));
         
-        this.lstQuestion = repo.getListQuestion(null, null, null, 10);
+        File file = fileChooser.showOpenDialog(mainStage);
+        
+        if (file == null) return;
+        
+        if (cbCategory.getValue() == null || cbLevel.getValue() == null) {
+            MyAlert.getInstance().showError("Vui lòng chọn danh mục");
+        }
+        
+        FileQuestionParser parser = new FileQuestionParser(file.getAbsolutePath());
+        
+        
     }
-    
-}

@@ -30,7 +30,7 @@ public class QuestionQueryBuilder {
     
     public String builder() {
         StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("SELECT q.id, q.content, q.hint, q.image, q.category_id, q.level_id ");
+        sqlBuilder.append("SELECT q.id, q.content, q.hint, q.image, c.name as category, lv.name as level ");
         sqlBuilder.append("FROM question q ");
         sqlBuilder.append("INNER JOIN category c ON q.category_id = c.id ");
         sqlBuilder.append("INNER JOIN level lv ON q.level_id = lv.id ");
