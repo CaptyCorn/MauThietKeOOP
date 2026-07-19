@@ -30,11 +30,13 @@ public class QuestionRepository {
                     .limit(limit);
             
         List<Question> questions = new ArrayList<>();
-        System.out.println(query.builder());
+        String sql = query.builder();
+        
+        System.out.println(sql);
         System.out.println("size: " + query.getParams().size());
         try {
             Connection conn = JdbcConnector.getInstance().connect();
-            PreparedStatement stm = conn.prepareStatement(query.builder());
+            PreparedStatement stm = conn.prepareStatement(sql);
             int idx = 1;
             for (Object param: query.getParams()) {
                 stm.setObject(idx, param);
@@ -45,14 +47,17 @@ public class QuestionRepository {
             
             while(rs.next()) {
                 int questionId = rs.getInt("id");
+                
+                List<Choice> choices = getListChoices(questionId);
+                
                 Question question = new Question(
                         questionId, 
                         rs.getString("content"), 
-                        rs.getString("level"), 
-                        rs.getString("category"), 
+                        rs.getString("level_id"), 
+                        rs.getString("category_id"), 
                         rs.getString("hint"), 
                         rs.getString("image"), 
-                        new ArrayList<>());
+                        choices);
                 questions.add(question);
             }
             
@@ -60,6 +65,31 @@ public class QuestionRepository {
             Logger.getLogger(QuestionRepository.class.getName()).log(Level.SEVERE, null, ex);
         }
         return questions;
+    }
+    
+    public List<Choice> getListChoices(int questionId) {
+        try {
+            List<Choice> choices = new ArrayList<>();
+            Connection conn = JdbcConnector.getInstance().connect();
+            
+            String sql = "SELECT c.content, c.is_correct FROM choice c WHERE c.question_id = ?";
+            PreparedStatement stm = conn.prepareStatement(sql);
+            stm.setInt(1, questionId);
+            
+            ResultSet rs = stm.executeQuery();
+            
+            while(rs.next()) {
+                Choice choice = new Choice(rs.getString("content"), rs.getInt("is_correct") == 1);
+                choices.add(choice);
+            }
+            
+            return choices;
+            
+        } catch (SQLException ex) {
+            System.getLogger(QuestionRepository.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            return null;
+        }
+        
     }
     
     public boolean addQuestion(Question question) throws SQLException {
@@ -93,7 +123,7 @@ public class QuestionRepository {
         return questionId != -1;
     }
 
-    private Integer getCategoryId(String category) {
+    public static Integer getCategoryId(String category) {
         switch (category) {
             case "Grammar":
                 return 1;
@@ -106,7 +136,7 @@ public class QuestionRepository {
         }
     }
 
-    private Integer getLevelId(String level) {
+    public static Integer getLevelId(String level) {
         switch (level) {
             case "Easy":
                 return 1;

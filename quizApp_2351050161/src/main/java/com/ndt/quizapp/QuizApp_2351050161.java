@@ -224,14 +224,74 @@ public class QuizApp_2351050161 extends Application{
         this.mainStage.setScene(scene);
         this.mainStage.show();
     }
-
+    
     private void showPracticeForm() {
-        initDB();
+        Label lblPractice = new Label("Thiết lập câu hỏi");
+        lblPractice.setStyle(currThemeFactory.getTitleStyle());
+        lblPractice.setAlignment(Pos.CENTER);
         
-        Label lbl = new Label("Câu hỏi " + currQuestion + " / " + lstQuestion.size());
+        TextField txtKeyWord =  new TextField();
+        txtKeyWord.setMaxWidth(500);
+        txtKeyWord.setPromptText("Nhập từ khoá");
+        
+        ComboBox cbCategory = new ComboBox();
+        cbCategory.getItems().addAll("Grammar", "Vocabulary", "Reading");
+        cbCategory.setValue("Danh mục");
+        
+        ComboBox cbLevel = new ComboBox();
+        cbLevel.getItems().addAll("Easy", "Medium", "Hard");
+        cbLevel.setValue("Cấp độ");
+        
+        HBox hbDanhMuc = new HBox(10);
+        hbDanhMuc.setAlignment(Pos.CENTER);
+        hbDanhMuc.getChildren().addAll(cbCategory, cbLevel);
+        
+        TextField txtSoLuong =  new TextField();
+        txtSoLuong.setMaxWidth(500);
+        txtSoLuong.setPromptText("Nhập số câu hỏi");
+        
+        Button btnBack = new Button("Quay về");
+        btnBack.setStyle(currThemeFactory.getButtonStyle());
+        btnBack.setOnAction(e -> showHome());
+        
+        Button btnStart = new Button("Bắt đầu");
+        btnStart.setStyle(currThemeFactory.getButtonStyle());
+        btnStart.setOnAction(e -> {
+            if (txtSoLuong.getText().trim().isEmpty()) {
+                MyAlert.getInstance().showAlert("Chưa nhập số lượng câu hỏi", Alert.AlertType.INFORMATION);
+            }
+            
+            Integer quantity = Integer.valueOf(txtSoLuong.getText().trim());
+            Integer categoryId = QuestionRepository.getCategoryId(cbCategory.getValue().toString());
+            Integer levelId = QuestionRepository.getLevelId(cbLevel.getValue().toString());
+            
+            QuestionRepository questionRepo = new QuestionRepository();
+            lstQuestion = questionRepo.getListQuestion(txtKeyWord.getText(), categoryId, levelId, quantity);
+            if (lstQuestion.isEmpty()) {
+                MyAlert.getInstance().showAlert("Không có câu hỏi được chọn", Alert.AlertType.INFORMATION);
+            }
+            showPracticeQuestionForm();
+            
+        });
+        
+        VBox root = new VBox(15);
+        root.setAlignment(Pos.CENTER);
+        root.setStyle(currThemeFactory.getBackgroudStyle());
+        root.getChildren().addAll(lblPractice, txtKeyWord, hbDanhMuc, txtSoLuong, btnBack, btnStart);
+        
+        Scene scene = new Scene(root, 640, 480);
+        this.mainStage.setScene(scene);
+        this.mainStage.show();
+    }
+
+    private void showPracticeQuestionForm() {
+//        initDB();
+        
+        Label lbl = new Label("Câu hỏi " + (currQuestion + 1) + " / " + lstQuestion.size());
         
         Label lblContent = new Label(lstQuestion.get(currQuestion).getContent());
         lblContent.prefWidth(500);
+        lblContent.setWrapText(true);
         
         VBox answerBox = new VBox();
         answerBox.setAlignment(Pos.TOP_LEFT);
@@ -244,17 +304,43 @@ public class QuizApp_2351050161 extends Application{
             answerBox.getChildren().add(rbChoice);
         }
         
-        Button btnAnswer = new Button("Trả lời");
+        Label txtLbl = new Label();
+        txtLbl.prefWidth(500);
+        txtLbl.setStyle(currThemeFactory.getTitleStyle());
+        
+        Button btnAnswer = new Button("Kiểm tra");
         btnAnswer.setStyle(currThemeFactory.getButtonStyle());
+        btnAnswer.setOnAction(e -> {
+            RadioButton selected = (RadioButton) rbAnswerGroup.getSelectedToggle();
+            
+            if (selected == null) {
+                MyAlert.getInstance().showAlert("Chưa chọn đáp án", Alert.AlertType.INFORMATION);
+            }
+            
+            Choice choice = (Choice) selected.getUserData();
+            if (choice.getIs_correct()) txtLbl.setText("Chính xác");
+            else txtLbl.setText("Chưa chính xác");
+        });
         
         Button btnNextQuestion = new Button("Câu tiếp theo");
         btnNextQuestion.setStyle(currThemeFactory.getButtonStyle());
-        btnNextQuestion.setOnAction(e -> showHome());
+        btnNextQuestion.setOnAction(e -> {
+            if (currQuestion < lstQuestion.size() - 1) {
+                currQuestion += 1;
+                showPracticeQuestionForm();
+            }
+            else {
+                btnNextQuestion.setText("Về trang chủ");         
+                showPracticeForm();
+                currQuestion = 0;
+            }
+            
+        });
         
         VBox root = new VBox(15);
-        root.setAlignment(Pos.CENTER);
+        root.setAlignment(Pos.TOP_LEFT);
         root.setStyle(currThemeFactory.getBackgroudStyle());
-        root.getChildren().addAll(lbl, lblContent, answerBox, btnAnswer, btnNextQuestion);
+        root.getChildren().addAll(lbl, lblContent, answerBox, btnAnswer, btnNextQuestion, txtLbl);
         
         Scene scene = new Scene(root, 640, 480);
         this.mainStage.setScene(scene);
@@ -269,7 +355,7 @@ public class QuizApp_2351050161 extends Application{
 
         QuestionRepository repo = new QuestionRepository();
         
-        this.lstQuestion = repo.getListQuestion(null, null, null, 1);
+        this.lstQuestion = repo.getListQuestion(null, null, null, 10);
     }
     
 }
